@@ -20,7 +20,7 @@ export ZOPEN_STABLE_DEPS="git curl bash zoslib autoconf automake" # Specify the 
 
 ## Required IF ZOPEN_BUILD_LINE='DEV'
 export ZOPEN_DEV_URL="https://github.com/yaml/libyaml.git"   # Specify the dev build URL
-export ZOPEN_DEV_DEPS="libtool gettext m4 make sed grep diffutils tar git curl bash zoslib autoconf automake"  # Specify the dev build dependencies
+export ZOPEN_DEV_DEPS="libtool gettext m4 make sed grep diffutils tar git curl bash zoslib autoconf automake perl"  # Specify the dev build dependencies
 
 ## Specify a space-delimited list of applicable categories.
 ## See tool_categories.txt for valid options
