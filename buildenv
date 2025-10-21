@@ -1,7 +1,7 @@
 # Update bump details accordingly. Use bump check to confirm.
 # bump: libyaml-version /LIBYAML_VERSION="(.*)"/ https://github.com/yaml/libyaml.git|semver:*
-# LIBYAML_VERSION="V.R.M" # Specify a stable release
-# export ZOPEN_STABLE_TAG="v${LIBYAML_VERSION}"
+LIBYAML_VERSION="0.2.5" # Specify a stable release
+export ZOPEN_STABLE_TAG="${LIBYAML_VERSION}"
 
 ###
 ### Build control file for the libyaml port
@@ -12,7 +12,7 @@
 ###
 
 ## Specify the default build line, either 'DEV' or 'STABLE' (default: STABLE)
-export ZOPEN_BUILD_LINE="DEV"
+export ZOPEN_BUILD_LINE="STABLE"
 
 ## Required IF ZOPEN_BUILD_LINE='STABLE'
 export ZOPEN_STABLE_URL="https://github.com/yaml/libyaml.git"  # Specify the stable build URL (either git or tarball)
@@ -52,22 +52,33 @@ export ZOPEN_MAKE="make"      ## Build program to run (defaults to 'make')
 
 zopen_check_results()
 {
-  dir="$1"
-  pfx="$2"
-  chk="$1/$2_check.log"
+chk="$1/$2_check.log"
 
-  # Echo the following information to gauge build health
-  echo "actualFailures:0"
-  echo "totalTests:1"
-  echo "expectedFailures:0"
-  echo "expectedTotalTests:1"
+totalTests=$(grep "^# TOTAL: " ${chk} | head -1 | awk '{ print $3 }')
+actualFailures=$(grep "^# FAIL: " ${chk} | head -1 | awk '{ print $3 }')
+actualPass=$(grep "^# PASS: " ${chk} | head -1 | awk '{ print $3 }')
+actualErrors=$(grep "^# ERROR: " ${chk} | head -1 | awk '{ print $3 }')
+actualSkip=$(grep "^# SKIP: " ${chk} | head -1 | awk '{ print $3 }')
+expectedFailures=0
+expectedErrors=0
+expectedPass=2
+expectedSkip=0
+totalExpectedFailures=$(($expectedFailures+$expectedErrors))
+totalActualFailures=$(($actualFailures+$actualErrors))
+totalRunTests=$(($totalTests-$actualSkip))
+
+cat <<ZZ
+actualFailures:$totalActualFailures
+totalTests:$totalRunTests
+expectedFailures:$totalExpectedFailures
+ZZ
 }
 
 zopen_get_version()
 {
   # Modify to echo the version of your tool/library
   # Rather than hardcoding the version, obtain the version by running the tool/library
-  echo "1.0.0"
+  echo $LIBYAML_VERSION
 }
 
 
@@ -75,10 +86,16 @@ zopen_get_version()
 ### Optional user-supplied functions for zopen-build
 ###
 
-#zopen_append_to_env() {
-  ## This function runs as part of generation of the .env file. The output of the
-  ## function is appended to .env.
-#}
+zopen_append_to_env() {
+cat <<ZZ
+if [ ! -z "\$ZOPEN_IN_ZOPEN_BUILD" ]; then
+  export ZOPEN_EXTRA_CFLAGS="\${ZOPEN_EXTRA_CFLAGS} -I\$PWD/include"
+  export ZOPEN_EXTRA_CXXFLAGS="\${ZOPEN_EXTRA_CXXFLAGS} -I\$PWD/include"
+  export ZOPEN_EXTRA_LDFLAGS="\${ZOPEN_EXTRA_LDFLAGS} -L\$PWD/lib"
+  export ZOPEN_EXTRA_LIBS="\${ZOPEN_EXTRA_LIBS} -lyaml"
+fi
+ZZ
+}
 
 #zopen_append_to_setup(){
   ## This function runs as part of generation of the setup.sh file. The output of
