@@ -1,6 +1,6 @@
 # Update bump details accordingly. Use bump check to confirm.
 # bump: libyaml-version /LIBYAML_VERSION="(.*)"/ https://github.com/yaml/libyaml.git|semver:*
-LIBYAML_VERSION="0.2.5" # Specify a stable release
+LIBYAML_VERSION="0.2.6" # Specify a stable release
 export ZOPEN_STABLE_TAG="${LIBYAML_VERSION}"
 
 ###
